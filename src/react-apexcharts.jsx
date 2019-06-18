@@ -100,16 +100,11 @@ export default class Charts extends Component {
   componentDidUpdate (prevProps) {
     if (!this.chart) return null
     const { options, series } = this.props
-    const prevOptions = JSON.stringify(prevProps.options)
-    const prevSeries = JSON.stringify(prevProps.series)
-    const currentOptions = JSON.stringify(options)
-    const currentSeries = JSON.stringify(series)
+    const prevOptions = prevProps.options
+    const prevSeries = prevProps.series
 
-    if (prevOptions !== currentOptions || prevSeries !== currentSeries) {
-      if (prevSeries === currentSeries) {
-        // series is not changed,but options are changed
-        this.chart.updateOptions(this.getConfig())
-      } else if (prevOptions === currentOptions) {
+    if (!areTwoObjectsEqual(prevOptions, options) || !areTwoObjectsEqual(prevSeries, series)) {
+      if (areTwoObjectsEqual(prevOptions, options)) {
         // options are not changed, just the series is changed
         this.chart.updateSeries(series)
       } else {
@@ -122,6 +117,36 @@ export default class Charts extends Component {
   componentWillUnmount () {
     if (this.chart && typeof this.chart.destroy === 'function') this.chart.destroy()
   }
+}
+
+const areTwoObjectsEqual = (a, b) => { //a recursive function which compares two objects by testing equality between each parameter
+  let equal = true
+  try {
+    let keysA = Object.keys(a)
+    let keysB = Object.keys(b)
+    if (keysA.length === keysB.length) {
+      for (let i = 0; i < keysA.length; i++) {
+        let nextA = a[keysA[i]]
+        let nextB = b[keysA[i]]
+        if (typeof nextA !== typeof nextB) {
+          equal = false
+          break
+        }
+        else if (typeof nextA !== "object" && ((nextA && nextB) ? nextA.toString() !== nextB.toString() : nextA !== nextB)) {
+          equal = false
+          break
+        }
+        else if (typeof nextA === "object" && nextA && nextB && !areTwoObjectsEqual(nextA, nextB)) {
+          equal = false
+          break
+        }
+      }
+    }
+    else equal = false
+  } catch (e) { //no more child parameters
+    if (a !== b) equal = false
+  }
+  return equal
 }
 
 Charts.propTypes = {

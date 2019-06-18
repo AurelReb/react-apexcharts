@@ -25,6 +25,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "apexcharts": "AurelReb/apexcharts.js#build",
     "prop-types": "^15.5.7"
   },
   "peerDependencies": {
